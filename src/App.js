@@ -11,11 +11,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log("componentDidMount");
     return fetch(`http://localhost:8989/dogs`, {
       // Accept: 'application/json',
     }).then((response)=>{
-      console.log("ASD");
       console.log(response.status);
       response.json().then((json)=>{
         console.log(json);

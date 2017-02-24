@@ -1,33 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import App from './App';
 import { shallow, mount } from 'enzyme';
-// var waitsfor = require('waitsfor');
 import waitUntil from 'wait-until-promise';
 
-
 // import Pact from 'pact';
-
 let Pact = require('pact')
 
-// it('renders without crashing', () => {
-//   const div = document.createElement('div');
-//   ReactDOM.render(<App />, div);
-// });
-
-
-
-
-
-
-
-
-
-
-
 const path = require('path');
-// const Pact = require('../../../src/pact.js');
-// const getMeDogs = require('../index').getMeDogs;
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 describe("Dog's API", () => {
   let url = 'http://localhost';
@@ -40,13 +21,18 @@ describe("Dog's API", () => {
     spec: 2,
     consumer: 'App',
     provider: 'Rails',
+    cors: true,
   });
 
   const EXPECTED_BODY = [{dog: 1}];
 
-  beforeAll(() => provider.setup());
+  beforeAll(() => {
+    return provider.setup();
+  });
 
-  afterAll(() => provider.finalize());
+  afterAll(() => {
+    return provider.finalize();
+  });
 
   describe("works", () => {
     beforeAll(done => {
@@ -64,32 +50,22 @@ describe("Dog's API", () => {
           body: EXPECTED_BODY
         }
       };
-      provider.addInteraction(interaction).then(done, done)
+      // return provider.addInteraction(interaction).then(done);
+      provider.addInteraction(interaction).
+        then(done, (e)=>{ console.log(e); console.log(e.total); console.log("problem with addInteration"); done(); }).
+        catch((e) => { console.log(e); });
     });
-
-    // i  t('returns a sucessful body', done => {
-    //   // return getMeDogs({ url, port })
-    //   //   .then(response => {
-    //   //     expect(response.headers['content-type']).toEqual('application/json')
-    //   //     expect(response.data).toEqual(EXPECTED_BODY)
-    //   //     expect(response.status).toEqual(200)
-    //   //     done()
-    //   //   })
-    //
-    //   const div = document.createElement('div');
-    //   ReactDOM.render(<App />, div);
-    //   done();
-    // });
 
     it('2', done => {
       const app = mount(<App />);
-      console.log("rendered");
       expect(app.contains(<h2>Welcome to React</h2>)).toEqual(true);
-      // waitsfor.waitsFor(function() { return true; }).then(done);
-      // waitUntil(function() { return true; }).then(done);
+
       waitUntil(()=>{
+        return app.contains(<p>PARSED</p>);
+      }).then(()=>{
         expect(app.contains(<p>PARSED</p>)).toEqual(true);
-      }).then(done);
+        done();
+      });
     });
 
     // verify with Pact, and reset expectations
